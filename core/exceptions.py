@@ -1,0 +1,46 @@
+from fastapi import status
+
+
+
+class BaseAppException(Exception):
+    def __init__(self, status_code, detail):
+        super().__init__(detail)
+        self.status_code = status_code
+        self.detail = detail
+
+
+class ClientNotFoundError(BaseAppException):
+    def __init__(self, user_id: int | None = None, email: str | None = None) -> None:
+        if user_id is not None:
+            detail = f"Client with id {user_id} not found."
+        elif email:
+            detail = f"Client with email '{email}' not found."
+        else:
+            detail = "Client not found."
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+
+class TokenExpiredError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token expired error."
+        )
+
+
+class TokenInvalidError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token Invalid Error."
+        )
+
+class UserAlreadyError(BaseAppException):
+    def __init__(self, email: str | None = None, user_id: int | None = None) -> None:
+        if user_id is not None:
+            detail = f"User with id {user_id} is already registered."
+        elif email:
+            detail = f"User with email '{email}' is already registered."
+        else:
+            detail = "User is already registered."
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
