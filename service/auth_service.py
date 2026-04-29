@@ -1,9 +1,17 @@
 from datetime import datetime, timedelta, timezone
 from core.config import settings
 import jwt
-
-
-
+from core.exceptions import (
+UserAlreadyError,
+UserNotFoundError,
+TokenExpiredError,
+TokenInvalidError
+)
+from database.unit_of_work import UnitOfWork
+from schemas.schemas_user import RegisterUser
+from utils.hash import hash_password
+import uuid
+from core.redis import redis_client
 
 
 class AuthService:
@@ -30,7 +38,7 @@ class AuthService:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
             user_id = payload.get("sub")
             if user_id is None:
-                raise ClientNotFoundError()
+                raise UserNotFoundError()
             return int(user_id)
         except jwt.ExpiredSignatureError:
             raise TokenExpiredError()
@@ -41,3 +49,4 @@ class AuthService:
     def refresh_token(token: str) -> str:
         client_id = AuthService.decode_token(token)
         return AuthService.create_access_token(client_id)
+    

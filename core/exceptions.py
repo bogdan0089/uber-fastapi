@@ -9,7 +9,7 @@ class BaseAppException(Exception):
         self.detail = detail
 
 
-class ClientNotFoundError(BaseAppException):
+class UserNotFoundError(BaseAppException):
     def __init__(self, user_id: int | None = None, email: str | None = None) -> None:
         if user_id is not None:
             detail = f"Client with id {user_id} not found."
@@ -44,3 +44,11 @@ class UserAlreadyError(BaseAppException):
         else:
             detail = "User is already registered."
         super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
+
+class UsersNotFoundError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User not found error."
+        )
+

@@ -8,3 +8,11 @@ class Role(Enum):
     driver = "driver"
 
 
+
+class Status(Enum):
+    waiting = "waiting"
+    in_progress = "in_progress"
+    completed = "completed"
+    cancelled = "cancelled"
+
+

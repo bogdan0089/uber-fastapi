@@ -1,0 +1,29 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+from database.database import async_session_maker
+from repository.repository_user import RepositoryUser
+
+
+
+class UnitOfWork:
+    def __init__(self) -> None:
+        self.session: AsyncSession | None = None
+        self.session_factory = async_session_maker
+        
+
+    async def __aenter__(self):
+        self.session = self.session_factory()
+        self.user = RepositoryUser(self.session)
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        if exc_type:
+            await self.session.rollback()
+        else:
+            await self.session.commit()
+        await self.session.close()
+
+    async def commit(self) -> None:
+        await self.session.commit()
+
+    async def rollback(self) -> None:
+        await self.session.rollback()
