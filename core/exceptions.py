@@ -2,13 +2,22 @@ from fastapi import status
 
 
 
+
+
+
 class BaseAppException(Exception):
     def __init__(self, status_code, detail):
         super().__init__(detail)
         self.status_code = status_code
         self.detail = detail
 
-
+class PasswordError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid password"
+        )
+    
 class UserNotFoundError(BaseAppException):
     def __init__(self, user_id: int | None = None, email: str | None = None) -> None:
         if user_id is not None:
@@ -19,14 +28,12 @@ class UserNotFoundError(BaseAppException):
             detail = "Client not found."
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 
-
 class TokenExpiredError(BaseAppException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Token expired error."
         )
-
 
 class TokenInvalidError(BaseAppException):
     def __init__(self):
@@ -52,3 +59,26 @@ class UsersNotFoundError(BaseAppException):
             detail=f"User not found error."
         )
 
+class PermissinError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied"
+        )
+
+class TripNotFoundError(BaseAppException):
+    def __init__(self, trip_id: int):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Trip {trip_id} not found"
+        )
+        
+class TripsNotFoundError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Trips not found."
+        )
+
+
+        
