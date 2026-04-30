@@ -23,7 +23,7 @@ class Trip(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     passenger_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     driver_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
-    status: Mapped[Status]
+    status: Mapped[Status] = mapped_column(default=Status.waiting)
     pickup_address: Mapped[str]
     dropoff_address: Mapped[str]
     create_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
