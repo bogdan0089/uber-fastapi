@@ -2,16 +2,10 @@ from datetime import datetime, timedelta, timezone
 from core.config import settings
 import jwt
 from core.exceptions import (
-UserAlreadyError,
 UserNotFoundError,
 TokenExpiredError,
 TokenInvalidError
 )
-from database.unit_of_work import UnitOfWork
-from schemas.schemas_user import RegisterUser
-from utils.hash import hash_password
-import uuid
-from core.redis import redis_client
 
 
 class AuthService:
@@ -25,9 +19,9 @@ class AuthService:
         return jwt.encode(payload, settings.SECRET_KEY, settings.ALGORITHM)
 
     @staticmethod
-    def create_refresh_token(client_id: int) -> str:
+    def create_refresh_token(user_id: int) -> str:
         payload = {
-            "sub": str(client_id),
+            "sub": str(user_id),
             "exp": datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         }
         return jwt.encode(payload, settings.SECRET_KEY, settings.ALGORITHM)
@@ -47,6 +41,6 @@ class AuthService:
 
     @staticmethod
     def refresh_token(token: str) -> str:
-        client_id = AuthService.decode_token(token)
-        return AuthService.create_access_token(client_id)
+        user_id = AuthService.decode_token(token)
+        return AuthService.create_access_token(user_id)
     
