@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import async_session_maker
 from repository.repository_user import RepositoryUser
-
+from repository.repository_trip import RepositoryTrip
 
 
 class UnitOfWork:
@@ -13,6 +13,7 @@ class UnitOfWork:
     async def __aenter__(self):
         self.session = self.session_factory()
         self.user = RepositoryUser(self.session)
+        self.trip = RepositoryTrip(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
