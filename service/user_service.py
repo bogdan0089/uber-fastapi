@@ -12,6 +12,9 @@ from database.unit_of_work import UnitOfWork
 from models.models import User
 from service.auth_service import AuthService
 from tasks.tasks import send_registration_email
+from utils.dependencies import CurrentClient
+from core.enum import Role
+
 
 
 class UserService:
@@ -50,7 +53,7 @@ class UserService:
             }
 
     @staticmethod
-    async def get_user(user_id: int) -> User:
+    async def get_user(user_id: int, current_user: CurrentClient) -> User:
         cached_key = f"user:{user_id}"
         cached = await redis_client.get(cached_key)
         if cached:
@@ -59,6 +62,8 @@ class UserService:
             user = await uow.user.get_user(user_id)
             if not user:
                 raise UserNotFoundError(user_id)
+            if current_user.id != user.id and current_user.role != Role.ADMIN:
+                raise PermissionError()
         await redis_client.set(cached_key, ResponseUser.model_validate(user).model_dump_json(), ex=300)
         return user
 

@@ -3,10 +3,11 @@ from database.unit_of_work import UnitOfWork
 from models.models import Trip
 from core.exceptions import (
 TripNotFoundError,
-TripsNotFoundError
+TripsNotFoundError,
+TripStatusError
 )
 from core.redis import redis_client
-
+from core.enum import Status
 
 
 
@@ -54,4 +55,23 @@ class TripService:
             if not my_trips:
                 raise TripsNotFoundError()
             return my_trips
+        
+    @staticmethod
+    async def update_status(trip_id: int, new_status: Status, driver_id: int | None = None) -> Trip:
+        async with UnitOfWork() as uow:
+            trip = await uow.trip.get_trip(trip_id)
+            if not trip:
+                raise TripNotFoundError(trip_id)
+            allowed_transistion = {
+                Status.WAITING: [Status.IN_PROGRESS, Status.CANCELLED],
+                Status.IN_PROGRESS: [Status.COMPLETED, Status.CANCELLED],
+                Status.COMPLETED: [],
+                Status.CANCELLED: []
+            }
+            if new_status not in allowed_transistion[trip.status]:
+                raise TripStatusError()
+            if new_status == Status.IN_PROGRESS and driver_id:
+                return await uow.trip.accept_trip(trip.id, driver_id)
+            return await uow.trip.update_status(trip.id, new_status)
+            
         
