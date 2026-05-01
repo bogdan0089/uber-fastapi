@@ -27,7 +27,7 @@ CurrentClient = Annotated[User, Depends(get_current_user)]
 
 
 async def require_pessanger(user: CurrentClient) -> User:
-    if user.role != Role.passenger:
+    if user.role != Role.PASSENGER:
         raise PermissinError()
     return user
 
@@ -36,9 +36,17 @@ CurrentPessanger = Annotated[User, Depends(require_pessanger)]
 
 
 async def require_driver(user: CurrentClient) -> User:
-    if user.role != Role.driver:
+    if user.role != Role.DRIVER:
         raise PermissinError()
     return user
 
 
-CurrentDriver = Annotated[User, Depends(require_driver)]        
+CurrentDriver = Annotated[User, Depends(require_driver)]
+
+
+async def require_admin(user: CurrentClient) -> User:
+    if user.role != Role.ADMIN:
+        raise PermissinError()
+    return user
+
+CurrentAdmin = Annotated[User, Depends(require_admin)]

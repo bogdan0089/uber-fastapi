@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from core.exceptions import BaseAppException
 from routers.router_auth import router_auth
 from routers.router_user import router_user
-
+from routers.router_trip import router_trip
 
 
 
@@ -15,3 +15,4 @@ async def app_exception_handler(request: Request, exc: BaseAppException):
 
 app.include_router(router_user)
 app.include_router(router_auth)
+app.include_router(router_trip)

@@ -80,5 +80,10 @@ class TripsNotFoundError(BaseAppException):
             detail=f"Trips not found."
         )
 
-
+class TripStatusError(BaseAppException):
+    def __init__(self, trip_id: int):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip {trip_id} error status"
+        )
         
