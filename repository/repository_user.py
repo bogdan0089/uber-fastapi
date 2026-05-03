@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas.schemas_user import RegisterUser
+from schemas.schemas_user import RegisterUser, UserUpdate
 from models.models import User
 from sqlalchemy import select
 
@@ -40,5 +40,23 @@ class RepositoryUser:
         )
         return result.scalars().all()
     
+    async def update_user(self, user: User, data: UserUpdate) -> User:
+        for field, value in data.model_dump().items():
+            setattr(user, field, value)
+        self.session.add(user)
+        await self.session.flush()
+        await self.session.refresh(user)
 
-        
+    async def deactive_user(self, user: User) -> bool:
+        user.is_active = False
+        self.session.add(user)
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
+    
+    async def activated_user(self, user: User) -> bool:
+        user.is_active = True
+        self.session.add(user)
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
