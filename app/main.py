@@ -4,6 +4,7 @@ from core.exceptions import BaseAppException
 from routers.router_auth import router_auth
 from routers.router_user import router_user
 from routers.router_trip import router_trip
+from routers.router_websocket import router_web_socket
 
 
 
@@ -16,3 +17,4 @@ async def app_exception_handler(request: Request, exc: BaseAppException):
 app.include_router(router_user)
 app.include_router(router_auth)
 app.include_router(router_trip)
+app.include_router(router_web_socket)
