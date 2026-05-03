@@ -1,10 +1,6 @@
 from fastapi import status
 
 
-
-
-
-
 class BaseAppException(Exception):
     def __init__(self, status_code, detail):
         super().__init__(detail)
