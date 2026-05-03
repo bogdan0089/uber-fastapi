@@ -16,8 +16,9 @@ async def register_user(data: RegisterUser) -> dict:
 async def login(data: UserLogin) -> dict | TokenResponse:
     return await UserService.login_user(data)
 
-
-
+@router_auth.get("/auth/verify/{token}")
+async def verify_user(token: str):
+    return await UserService.verification_email(token)
 
 
 

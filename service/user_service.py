@@ -1,11 +1,17 @@
-from schemas.schemas_user import RegisterUser, UserLogin, ResponseUser
+from schemas.schemas_user import (
+RegisterUser,
+UserLogin,
+ResponseUser,
+UserUpdate
+)
 from core.redis import redis_client
 from utils.hash import hash_password, verify_password
 from core.exceptions import (
     UserAlreadyError,
     UsersNotFoundError,
     UserNotFoundError,
-    PasswordError
+    PasswordError,
+    TokenInvalidError
 )
 import uuid
 from database.unit_of_work import UnitOfWork
@@ -74,6 +80,42 @@ class UserService:
             if not users:
                 raise UsersNotFoundError()
             return users
-        
 
+    @staticmethod
+    async def user_update(user_id: int, data: UserUpdate, current_user: User) -> User:
+        async with UnitOfWork() as uow:
+            user = await uow.user.get_user(user_id)
+            if not user:
+                raise UserNotFoundError(user_id)
+            if user.id != current_user.id and current_user.role != Role.ADMIN:
+                raise PermissionError()
+            user_update = await uow.user.update_user(user, data)
+            return user_update
     
+    @staticmethod
+    async def deactive_user(user_id: int, current_user: User) -> bool:
+        async with UnitOfWork() as uow:
+            user = await uow.user.get_user(user_id)
+            if not user:
+                raise UserNotFoundError(user_id)
+            if user.id != current_user.id and current_user.role != Role.ADMIN:
+                raise PermissionError()
+            deactivated_user = await uow.user.deactive_user(user)
+            return deactivated_user
+        
+    @staticmethod
+    async def verification_email(token: str) -> dict:
+        async with UnitOfWork() as uow:
+            user_id = await redis_client.get(f"verify:{token}")
+            if not user_id:
+                raise TokenInvalidError()
+            user = await uow.user.get_user(user_id)
+            if not user:
+                raise UserNotFoundError(user_id)
+            await uow.user.activated_user(user)
+            await redis_client.delete(f"verify:{token}")
+            return {
+                "message": "Successfuly verified."
+            }
+                
+            
