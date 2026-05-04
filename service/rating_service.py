@@ -10,6 +10,7 @@ ForbiddenStatus,
 RatingAlreadyExistsError
 )
 from core.enum import Status
+from core.redis import redis_client
 
 
 class ServiceRating:
@@ -32,6 +33,7 @@ class ServiceRating:
             avg = await uow.rating.get_avg_rating(data.driver_id)
             driver = await uow.user.get_user(data.driver_id)
             await uow.user.update_avg_rating(driver, avg)
+            await redis_client.delete(f"driver:{data.driver_id}")
             return rating
 
     @staticmethod
@@ -47,12 +49,17 @@ class ServiceRating:
         
     @staticmethod
     async def get_avg_ratings(driver_id: int) -> float:
-        async with UnitOfWork() as uow:
-            driver = await uow.user.get_user(driver_id)
-            if not driver:
-                raise UserNotFoundError(driver_id)
-            rating_avg = await uow.rating.get_avg_rating(driver_id)
-            return rating_avg
+            cached_key = f"driver:{driver_id}"
+            cached = await redis_client.get(cached_key)
+            if cached:
+                return float(cached)
+            async with UnitOfWork() as uow:
+                driver = await uow.user.get_user(driver_id)
+                if not driver:
+                    raise UserNotFoundError(driver_id)
+                rating_avg = await uow.rating.get_avg_rating(driver_id)
+                await redis_client.set(cached_key, str(rating_avg), ex=300)
+                return rating_avg
 
 
 
