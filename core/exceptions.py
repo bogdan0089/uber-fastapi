@@ -83,3 +83,16 @@ class TripStatusError(BaseAppException):
             detail=f"Trip {trip_id} error status"
         )
         
+class ForbiddenStatus(BaseAppException):
+    def __init__(self, trip_id: int):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access to trip {trip_id} is forbidden"
+        )
+
+class RatingAlreadyExistsError(BaseAppException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Rating for this trip already exists"
+        )

@@ -60,3 +60,10 @@ class RepositoryUser:
         await self.session.flush()
         await self.session.refresh(user)
         return user
+
+    async def update_avg_rating(self, user: User, avg: float) -> User:
+        user.avg_rating = avg
+        self.session.add(user)
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user

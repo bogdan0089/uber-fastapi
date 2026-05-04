@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import async_session_maker
 from repository.repository_user import RepositoryUser
 from repository.repository_trip import RepositoryTrip
-
+from repository.repository_rating import RepositoryRating
 
 class UnitOfWork:
     def __init__(self) -> None:
@@ -14,6 +14,7 @@ class UnitOfWork:
         self.session = self.session_factory()
         self.user = RepositoryUser(self.session)
         self.trip = RepositoryTrip(self.session)
+        self.rating = RepositoryRating(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
