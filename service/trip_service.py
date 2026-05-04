@@ -8,7 +8,7 @@ TripStatusError
 )
 from core.redis import redis_client
 from core.enum import Status
-
+from utils.price_calculator import price_calculate
 
 
 class TripService:
@@ -16,7 +16,8 @@ class TripService:
     @staticmethod
     async def create_trip(data: TripCreate, pessenger_id: int) -> TripCreate:
         async with UnitOfWork() as uow:
-            trip = await uow.trip.create_trip(data, pessenger_id)
+            price = price_calculate(data.pickup_lat, data.pickup_lon, data.dropoff_lat, data.dropoff_lon)
+            trip = await uow.trip.create_trip(data, pessenger_id, price)
             return trip
 
     @staticmethod

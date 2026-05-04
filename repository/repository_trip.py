@@ -10,8 +10,9 @@ class RepositoryTrip:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_trip(self, data: TripCreate, passenger_id: int) -> TripCreate:
+    async def create_trip(self, data: TripCreate, passenger_id: int, price: float) -> TripCreate:
         trip = Trip(
+            price=price,
             passenger_id=passenger_id,
             **data.model_dump()
         )
