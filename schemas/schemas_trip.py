@@ -5,6 +5,10 @@ from datetime import datetime
 class TripCreate(BaseModel):
     pickup_address: str
     dropoff_address: str
+    pickup_lat: float
+    pickup_lon: float
+    dropoff_lat: float
+    dropoff_lon: float
 
 
 class ResponseTrip(BaseModel):
@@ -17,3 +21,4 @@ class ResponseTrip(BaseModel):
     pickup_address: str
     dropoff_address: str
     created_at: datetime
+    price: float

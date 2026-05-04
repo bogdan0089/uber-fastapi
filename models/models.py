@@ -20,6 +20,7 @@ class User(Base):
     ratings_as_passenger: Mapped[list["Rating"]] = relationship(back_populates="passenger", foreign_keys="[Rating.passenger_id]")
     ratings_as_driver: Mapped[list["Rating"]] = relationship(back_populates="driver", foreign_keys="[Rating.driver_id]")    
 
+
 class Trip(Base):
     __tablename__ = "trips"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -28,10 +29,15 @@ class Trip(Base):
     status: Mapped[Status] = mapped_column(default=Status.WAITING)
     pickup_address: Mapped[str]
     dropoff_address: Mapped[str]
-    create_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     passenger: Mapped["User"] = relationship(back_populates="trips_as_passenger", foreign_keys=[passenger_id])
     driver: Mapped["User"] = relationship(back_populates="trips_as_driver", foreign_keys=[driver_id])
     ratings: Mapped[list["Rating"]] = relationship(back_populates="trip")
+    pickup_lat: Mapped[float] = mapped_column(nullable=True)
+    pickup_lon: Mapped[float] = mapped_column(nullable=True)
+    dropoff_lat: Mapped[float] = mapped_column(nullable=True)
+    dropoff_lon: Mapped[float] = mapped_column(nullable=True)
+    price: Mapped[float] = mapped_column(default=0.0)
 
 
 class Rating(Base):
