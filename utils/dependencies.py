@@ -3,7 +3,6 @@ from fastapi import Depends
 from models.models import User
 from database.unit_of_work import UnitOfWork
 from service.auth_service import AuthService
-from service.user_service import UserService
 from core.exceptions import (
 UserNotFoundError,
 PermissinError,
