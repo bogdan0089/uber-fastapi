@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.enum import Role, Status
 from datetime import datetime
+from sqlalchemy import Enum as SAEnum
 
 
 class User(Base):
@@ -11,9 +12,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
     full_name: Mapped[str]
-    role: Mapped[Role]
+    role: Mapped[Role] = mapped_column(SAEnum(Role, values_callable=lambda x: [e.value for e in x]), default=Role.PASSENGER)
     is_active: Mapped[bool] = mapped_column(default=True)
-    create_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     trips_as_passenger: Mapped[list["Trip"]] = relationship(back_populates="passenger", foreign_keys="[Trip.passenger_id]")
     trips_as_driver: Mapped[list["Trip"]] = relationship(back_populates="driver",foreign_keys="[Trip.driver_id]")
     avg_rating: Mapped[float] = mapped_column(default=0.0)

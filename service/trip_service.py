@@ -9,7 +9,10 @@ TripStatusError
 from core.redis import redis_client
 from core.enum import Status
 from utils.price_calculator import price_calculate
+from pydantic import TypeAdapter
 
+
+__trips_list_adapter = TypeAdapter(list[ResponseTrip])
 
 class TripService:
 
@@ -34,12 +37,21 @@ class TripService:
             return trip
     
     @staticmethod
-    async def get_trips(limit: int, offset: int) -> list[Trip]:
+    async def get_trips(limit: int, offset: int) -> list[ResponseTrip]:
+        cached_key = f"trips:limit:{limit}:offset:{offset}"  
+        cached = await redis_client.get(cached_key)
+        if cached:
+            return __trips_list_adapter.validate_json(cached)
         async with UnitOfWork() as uow:
             trips = await uow.trip.get_trips(limit, offset)
             if not trips:
                 raise TripsNotFoundError()
-            return trips
+            validated = __trips_list_adapter.validate_python(trips)
+            await redis_client.set(
+                cached_key, __trips_list_adapter.dump_json(validated),
+                ex=60
+            )
+        return validated
         
     @staticmethod
     async def get_available(limit: int, offset: int) -> list[Trip]:
@@ -50,12 +62,21 @@ class TripService:
             return waiting_trips
 
     @staticmethod
-    async def get_my_trips(user_id: int, limit: int, offset: int) -> list[Trip]:
+    async def get_my_trips(user_id: int, limit: int, offset: int) -> list[ResponseTrip]:
+        cached_key = f"user_id:{user_id}:limit:{limit}:offset:{offset}"
+        cached = await redis_client.get(cached_key)
+        if cached:
+            return __trips_list_adapter.validate_json(cached)
         async with UnitOfWork() as uow:
             my_trips = await uow.trip.get_my_trips(user_id, limit, offset)
             if not my_trips:
                 raise TripsNotFoundError()
-            return my_trips
+            validated = __trips_list_adapter.validate_python(my_trips)
+            await redis_client.set(
+                cached_key, __trips_list_adapter.dump_json(validated),
+                ex=60
+            )
+        return validated
         
     @staticmethod
     async def update_status(trip_id: int, new_status: Status, driver_id: int | None = None) -> Trip:
@@ -73,6 +94,8 @@ class TripService:
                 raise TripStatusError()
             if new_status == Status.IN_PROGRESS and driver_id:
                 return await uow.trip.accept_trip(trip.id, driver_id)
-            return await uow.trip.update_status(trip.id, new_status)
-            
+            updated = await uow.trip.update_status(trip.id, new_status)
+        async for key in redis_client.scan_iter("trip*"):
+            await redis_client.unlink(key)
+        return updated
         
