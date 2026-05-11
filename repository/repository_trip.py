@@ -38,7 +38,7 @@ class RepositoryTrip:
     async def get_available(self, limit: int, offset: int) -> list[Trip]:
         result = await self.session.execute(
             select(Trip)
-            .where(Trip.status == Status.waiting)
+            .where(Trip.status == Status.WAITING)
             .limit(limit).offset(offset)
         )
         return result.scalars().all()
@@ -65,7 +65,7 @@ class RepositoryTrip:
         await self.session.execute(
             update(Trip)
             .where(Trip.id == trip_id)
-            .values(driver_id=driver_id, status=Status.in_progress)
+            .values(driver_id=driver_id, status=Status.IN_PROGRESS)
         )
         await self.session.flush()
         return await self.get_trip(trip_id)

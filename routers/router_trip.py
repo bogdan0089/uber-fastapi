@@ -11,7 +11,7 @@ router_trip = APIRouter(prefix="/trip")
 
 
 
-@router_trip.post("/",response_model=TripCreate)
+@router_trip.post("/",response_model=ResponseTrip)
 async def create_trip(data: TripCreate, user: CurrentPessanger) -> TripCreate:
     return await TripService.create_trip(data, user.id)
 
