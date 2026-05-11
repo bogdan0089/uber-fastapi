@@ -6,7 +6,7 @@ from models.models import User
 from utils.dependencies import CurrentClient, CurrentAdmin
 
 
-router_user = APIRouter(prefix="/user")
+router_user = APIRouter(prefix="/user", tags=["User"])
 
 
 

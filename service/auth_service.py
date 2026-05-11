@@ -6,6 +6,8 @@ UserNotFoundError,
 TokenExpiredError,
 TokenInvalidError
 )
+from core.redis import redis_client
+from database.unit_of_work import UnitOfWork
 
 
 class AuthService:
