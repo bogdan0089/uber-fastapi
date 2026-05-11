@@ -7,7 +7,7 @@ import asyncio
 from service.trip_service import TripService
 
 
-router_web_socket = APIRouter(prefix="/websocket")
+router_web_socket = APIRouter(prefix="/websocket", tags=["WebSocket"])
 
 manager = ConnectionManager()
 

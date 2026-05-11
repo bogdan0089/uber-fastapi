@@ -4,7 +4,7 @@ from schemas.schemas_token import TokenResponse
 from fastapi import APIRouter
 
 
-router_auth = APIRouter(prefix="/auth")
+router_auth = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router_auth.post("/register", status_code=201)

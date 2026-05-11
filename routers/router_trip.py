@@ -7,7 +7,7 @@ from models.models import Trip
 from core.enum import Status
 
 
-router_trip = APIRouter(prefix="/trip")
+router_trip = APIRouter(prefix="/trip", tags=["Trip"])
 
 
 

@@ -5,7 +5,7 @@ from service.rating_service import ServiceRating
 from utils.dependencies import CurrentPessanger, CurrentClient
 
 
-router_rating = APIRouter(prefix="/rating")
+router_rating = APIRouter(prefix="/rating", tags=["Rating"])
 
 
 @router_rating.post("/", response_model=ResponseRating)

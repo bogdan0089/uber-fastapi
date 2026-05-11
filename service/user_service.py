@@ -39,8 +39,8 @@ class UserService:
                 hashed=hashed
             )
             token = str(uuid.uuid4())
-            await redis_client.set(f"verify:{token}", user.id, ex=1000)
-            send_registration_email.delay(data.email)
+            await redis_client.set(f"verify:{token}", user.id, ex=86400)
+            send_registration_email.delay(data.email, token)
             return {
                 "message": "Registration Successfuly."
             }
@@ -116,17 +116,14 @@ class UserService:
         
     @staticmethod
     async def verification_email(token: str) -> dict:
+        user_id = await redis_client.get(f"verify:{token}")
+        if not user_id:
+            raise TokenInvalidError()
+        user_id = int(user_id.decode())
         async with UnitOfWork() as uow:
-            user_id = await redis_client.get(f"verify:{token}")
-            if not user_id:
-                raise TokenInvalidError()
             user = await uow.user.get_user(user_id)
             if not user:
                 raise UserNotFoundError(user_id)
-            await uow.user.activated_user(user)
-            await redis_client.delete(f"verify:{token}")
-            return {
-                "message": "Successfuly verified."
-            }
-                
-            
+            await uow.user.verify_email(user)
+        await redis_client.delete(f"verify:{token}")
+        return {"message": "Email verified successfully."}

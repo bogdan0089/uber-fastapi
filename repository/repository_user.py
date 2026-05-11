@@ -67,3 +67,8 @@ class RepositoryUser:
         await self.session.flush()
         await self.session.refresh(user)
         return user
+    
+    async def verify_email(self, user: User) -> bool:
+        user.is_verified = True
+        await self.session.flush()
+        await self.session.refresh(user)
