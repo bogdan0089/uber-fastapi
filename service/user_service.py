@@ -20,8 +20,10 @@ from service.auth_service import AuthService
 from tasks.tasks import send_registration_email
 from utils.dependencies import CurrentClient
 from core.enum import Role
+from pydantic import TypeAdapter
 
 
+_list_users_adapter = TypeAdapter(list[ResponseUser])
 
 class UserService:
 
@@ -70,16 +72,25 @@ class UserService:
                 raise UserNotFoundError(user_id)
             if current_user.id != user.id and current_user.role != Role.ADMIN:
                 raise PermissionError()
-        await redis_client.set(cached_key, ResponseUser.model_validate(user).model_dump_json(), ex=300)
+        await redis_client.set(cached_key, ResponseUser.model_validate(user).model_dump_json(), ex=60)
         return user
 
     @staticmethod
-    async def get_users(limit: int, offset: int) -> list[User]:
+    async def get_users(limit: int, offset: int) -> list[ResponseUser]:
+        cached_key = f"limit:{limit}:offset:{offset}"
+        cached = await redis_client.get(cached_key)
+        if cached:
+            return _list_users_adapter.validate_json(cached)
         async with UnitOfWork() as uow:
             users = await uow.user.get_users(limit, offset)
             if not users:
                 raise UsersNotFoundError()
-            return users
+            validated = _list_users_adapter.validate_python(users)
+            await redis_client.set(
+                cached_key, _list_users_adapter.dump_json(validated),
+                ex=60
+            )
+            return validated
 
     @staticmethod
     async def user_update(user_id: int, data: UserUpdate, current_user: User) -> User:

@@ -4,6 +4,7 @@ from repository.repository_user import RepositoryUser
 from repository.repository_trip import RepositoryTrip
 from repository.repository_rating import RepositoryRating
 
+
 class UnitOfWork:
     def __init__(self) -> None:
         self.session: AsyncSession | None = None
