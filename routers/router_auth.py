@@ -3,7 +3,7 @@ from service.auth_service import AuthService
 from schemas.schemas_user import RegisterUser, UserLogin
 from schemas.schemas_token import TokenResponse
 from fastapi import APIRouter
-from utils.dependencies import CurrentClient
+from utils.dependencies import CurrentUser
 
 
 router_auth = APIRouter(prefix="/auth", tags=["Auth"])
@@ -25,8 +25,8 @@ async def verify_user(token: str):
 async def refresh_access_token(token: str) -> str:
     return await AuthService.refresh_access_token(token)
 
-@router_auth.post("/")
-async def logout(current_user: CurrentClient) -> dict:
+@router_auth.post("/logout")
+async def logout(current_user: CurrentUser) -> dict:
     return await AuthService.logout(current_user.id)
 
 

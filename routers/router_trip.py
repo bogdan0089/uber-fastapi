@@ -27,7 +27,7 @@ async def get_my_trips(user: CurrentClient, limit: int = 10, offset: int = 0) ->
 async def get_trip(trip_id: int, _: CurrentClient) -> Trip:
     return await TripService.get_trip(trip_id)
 
-@router_trip.get("/trips", response_model=list[ResponseTrip])
+@router_trip.get("/", response_model=list[ResponseTrip])
 async def get_trips(limit: int = 10, offset: int = 0) -> list[ResponseTrip]:
     return await TripService.get_trips(limit, offset)
 

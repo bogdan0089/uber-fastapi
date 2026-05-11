@@ -11,15 +11,16 @@ router_web_socket = APIRouter(prefix="/websocket", tags=["WebSocket"])
 
 manager = ConnectionManager()
 
-@router_web_socket.websocket("/ws/{driver_id}/driver_id", )
+@router_web_socket.websocket("/ws/driver/{driver_id}", )
 async def driver(web_socket: WebSocket, driver_id: int):
     await manager.connect(web_socket)
     try:
         while True:
             data = await web_socket.receive_json()
-            await redis_client.set(f"location:{driver_id}", json.dumps(data))
+            await redis_client.geoadd("drivers", [data["lon"], data["lat"], f"driver:{driver_id}"])
     except:
         manager.disconnect(web_socket)
+        await redis_client.zrem(f"drivers", f"driver_id:{driver_id}")
 
 @router_web_socket.websocket("/ws/passenger/{trip_id}")
 async def pessenger(web_socket: WebSocket, trip_id: int):

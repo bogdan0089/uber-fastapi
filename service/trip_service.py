@@ -4,7 +4,8 @@ from models.models import Trip
 from core.exceptions import (
 TripNotFoundError,
 TripsNotFoundError,
-TripStatusError
+TripStatusError,
+DriversNotFoundError
 )
 from core.redis import redis_client
 from core.enum import Status
@@ -17,10 +18,15 @@ __trips_list_adapter = TypeAdapter(list[ResponseTrip])
 class TripService:
 
     @staticmethod
-    async def create_trip(data: TripCreate, pessenger_id: int) -> TripCreate:
+    async def create_trip(data: TripCreate, pessenger_id: int) -> Trip:
         async with UnitOfWork() as uow:
             price = price_calculate(data.pickup_lat, data.pickup_lon, data.dropoff_lat, data.dropoff_lon)
             trip = await uow.trip.create_trip(data, pessenger_id, price)
+            drivers = await redis_client.georadius("drivers", data.pickup_lon, data.pickup_lat, 5, "km")
+            if not drivers:
+                raise DriversNotFoundError()
+            driver_id = int(drivers[0].decode().split(":")[1])
+            trip = await uow.trip.accept_trip(trip.id, driver_id)
             return trip
 
     @staticmethod
