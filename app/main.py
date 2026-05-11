@@ -6,6 +6,7 @@ from routers.router_user import router_user
 from routers.router_trip import router_trip
 from routers.router_websocket import router_web_socket
 from routers.router_rating import router_rating
+from routers.router_admin import router_admin
 
 
 app = FastAPI(title="Uber")
@@ -19,3 +20,4 @@ app.include_router(router_auth)
 app.include_router(router_trip)
 app.include_router(router_web_socket)
 app.include_router(router_rating)
+app.include_router(router_admin)
