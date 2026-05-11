@@ -127,3 +127,11 @@ class UserService:
             await uow.user.verify_email(user)
         await redis_client.delete(f"verify:{token}")
         return {"message": "Email verified successfully."}
+    
+    @staticmethod
+    async def get_users_admin(limit: int, offset: int) -> list[User]:
+        async with UnitOfWork() as uow:
+            users = await uow.user.get_users_for_admin(limit, offset)
+            if not users:
+                raise UsersNotFoundError()
+            return users
