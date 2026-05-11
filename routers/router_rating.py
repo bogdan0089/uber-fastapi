@@ -17,5 +17,5 @@ async def get_driver_ratings(driver_id: int, _: CurrentClient) -> list[Rating]:
     return await ServiceRating.get_driver_ratings(driver_id)
 
 @router_rating.get("/driver/{driver_id}/avg",)
-async def get_avg_ratings(driver_id: int, _: CurrentClient) -> Rating:
+async def get_avg_ratings(driver_id: int, _: CurrentClient) -> float:
     return await ServiceRating.get_avg_ratings(driver_id)

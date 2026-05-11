@@ -7,8 +7,7 @@ from fastapi import APIRouter
 router_auth = APIRouter(prefix="/auth")
 
 
-
-@router_auth.post("/register")
+@router_auth.post("/register", status_code=201)
 async def register_user(data: RegisterUser) -> dict:
     return await UserService.register_user(data)
 

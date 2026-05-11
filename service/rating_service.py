@@ -1,4 +1,4 @@
-from schemas.schemas_rating import CreateRating
+from schemas.schemas_rating import CreateRating, ResponseRating
 from models.models import Rating
 from database.unit_of_work import UnitOfWork
 from core.exceptions import (
@@ -11,10 +11,12 @@ RatingAlreadyExistsError
 )
 from core.enum import Status
 from core.redis import redis_client
+from pydantic import TypeAdapter
 
+
+_list_rating_adapter = TypeAdapter(list[ResponseRating])
 
 class ServiceRating:
-
 
     @staticmethod
     async def create_rating(data: CreateRating, passenger_id: int, trip_id: int) -> Rating:
@@ -37,7 +39,11 @@ class ServiceRating:
             return rating
 
     @staticmethod
-    async def get_driver_ratings(driver_id: int) -> list[Rating]:
+    async def get_driver_ratings(driver_id: int) -> list[ResponseRating]:
+        cached_key = f"driver_id:{driver_id}"
+        cached = await redis_client.get(cached_key)
+        if cached:
+            return _list_rating_adapter.validate_json(cached)
         async with UnitOfWork() as uow:
             driver = await uow.user.get_user(driver_id)
             if not driver:
@@ -45,7 +51,12 @@ class ServiceRating:
             driver_ratings = await uow.rating.get_driver_ratings(driver_id)
             if not driver_ratings:
                 raise TripsNotFoundError()
-            return driver_ratings
+            validated = _list_rating_adapter.validate_python(driver)
+            await redis_client.set(
+                cached_key, _list_rating_adapter.dump_json(validated),
+                ex=60
+            )
+            return validated
         
     @staticmethod
     async def get_avg_ratings(driver_id: int) -> float:
@@ -58,8 +69,8 @@ class ServiceRating:
                 if not driver:
                     raise UserNotFoundError(driver_id)
                 rating_avg = await uow.rating.get_avg_rating(driver_id)
-                await redis_client.set(cached_key, str(rating_avg), ex=300)
-                return rating_avg
+            await redis_client.set(cached_key, str(rating_avg), ex=300)
+            return rating_avg
 
 
 
