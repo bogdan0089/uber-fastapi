@@ -10,7 +10,7 @@ class RepositoryTrip:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_trip(self, data: TripCreate, passenger_id: int, price: float) -> TripCreate:
+    async def create_trip(self, data: TripCreate, passenger_id: int, price: float) -> Trip:
         trip = Trip(
             price=price,
             passenger_id=passenger_id,

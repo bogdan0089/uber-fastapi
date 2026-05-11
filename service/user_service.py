@@ -18,7 +18,7 @@ from database.unit_of_work import UnitOfWork
 from models.models import User
 from service.auth_service import AuthService
 from tasks.tasks import send_registration_email
-from utils.dependencies import CurrentClient
+from utils.dependencies import CurrentUser
 from core.enum import Role
 from pydantic import TypeAdapter
 
@@ -61,7 +61,7 @@ class UserService:
             }
 
     @staticmethod
-    async def get_user(user_id: int, current_user: CurrentClient) -> User:
+    async def get_user(user_id: int, current_user: CurrentUser) -> User:
         cached_key = f"user:{user_id}"
         cached = await redis_client.get(cached_key)
         if cached:

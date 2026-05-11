@@ -15,3 +15,5 @@ def price_calculate(pickup_lat: float, pickup_lon: float, dropoff_lat: float, dr
     distance = 2 * R * atan2(sqrt(a), sqrt(1-a))
 
     return round(distance * 1.5, 2)
+
+
