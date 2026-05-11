@@ -7,7 +7,6 @@ TokenExpiredError,
 TokenInvalidError
 )
 from core.redis import redis_client
-from database.unit_of_work import UnitOfWork
 
 
 class AuthService:
@@ -21,12 +20,15 @@ class AuthService:
         return jwt.encode(payload, settings.SECRET_KEY, settings.ALGORITHM)
 
     @staticmethod
-    def create_refresh_token(user_id: int) -> str:
+    async def create_refresh_token(user_id: int) -> str:
         payload = {
             "sub": str(user_id),
             "exp": datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         }
-        return jwt.encode(payload, settings.SECRET_KEY, settings.ALGORITHM)
+        token = jwt.encode(payload, settings.SECRET_KEY, settings.ALGORITHM)
+        await redis_client.set(f"refresh:{user_id}", token, ex=60*60*24*7)
+        return token
+        
 
     @staticmethod
     def decode_token(token: str) -> int:
@@ -42,7 +44,17 @@ class AuthService:
             raise TokenInvalidError()
 
     @staticmethod
-    def refresh_token(token: str) -> str:
+    async def refresh_access_token(token: str) -> str:
         user_id = AuthService.decode_token(token)
+        stored = await redis_client.get(f"refresh:{user_id}")
+        if not stored:
+            raise TokenInvalidError()
         return AuthService.create_access_token(user_id)
     
+    @staticmethod
+    async def logout(user_id: int) -> dict:
+        await redis_client.delete(f"refresh:{user_id}")
+        return {
+            "message": "Logout out successfuly"
+        }
+

@@ -54,7 +54,7 @@ class UserService:
             if not verify_password(data.password, user.hashed_password):
                 raise PasswordError()
             access_token = AuthService.create_access_token(user.id)
-            refresh_token = AuthService.create_refresh_token(user.id)
+            refresh_token = await AuthService.create_refresh_token(user.id)
             return {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
