@@ -51,7 +51,7 @@ class ServiceRating:
             driver_ratings = await uow.rating.get_driver_ratings(driver_id)
             if not driver_ratings:
                 raise TripsNotFoundError()
-            validated = _list_rating_adapter.validate_python(driver)
+            validated = _list_rating_adapter.validate_python(driver_ratings)
             await redis_client.set(
                 cached_key, _list_rating_adapter.dump_json(validated),
                 ex=60
