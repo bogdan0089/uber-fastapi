@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from core.enum import Status
 from datetime import datetime
 
+
 class TripCreate(BaseModel):
     pickup_address: str
     dropoff_address: str
@@ -9,7 +10,6 @@ class TripCreate(BaseModel):
     pickup_lon: float
     dropoff_lat: float
     dropoff_lon: float
-
 
 class ResponseTrip(BaseModel):
     model_config = ConfigDict(from_attributes=True)

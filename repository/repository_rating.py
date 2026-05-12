@@ -1,14 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from models.models import Rating
-from schemas.schemas_rating import CreateRating, ResponseRating
-
+from schemas.schemas_rating import CreateRating
 
 
 class RepositoryRating:
     def __init__(self, session: AsyncSession):
         self.session = session
-
 
     async def create_rating(self, data: CreateRating, passenger_id: int, trip_id: int) -> Rating:
         rating = Rating(
