@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.schemas_user import RegisterUser, UserUpdate
 from models.models import User
 from sqlalchemy import select
+from schemas.schemas_payment import PaymentMethod
 
 
 class RepositoryUser:
@@ -72,3 +73,21 @@ class RepositoryUser:
         user.is_verified = True
         await self.session.flush()
         await self.session.refresh(user)
+
+    async def get_users_for_admin(self, limit: int, offset: int) -> list[User]:
+        users = await self.session.execute(
+            select(User)
+            .where(User.is_verified == True)
+            .where(User.is_active == True)
+            .limit(limit).offset(offset)
+        )
+        return users.scalars().all()
+    
+    async def payment_method(self, user: User, data: PaymentMethod):
+        user.payment_id = data.payment_id
+        self.session.add(user)
+        await self.session.flush()
+        await self.session.refresh(user)
+        
+
+    

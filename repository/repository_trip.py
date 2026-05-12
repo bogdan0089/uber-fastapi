@@ -1,7 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from sqlalchemy.orm import joinedload
-from models.models import Trip, User
+from models.models import Trip
 from schemas.schemas_trip import TripCreate
 from core.enum import Status
 

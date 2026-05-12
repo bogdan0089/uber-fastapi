@@ -29,7 +29,6 @@ class AuthService:
         await redis_client.set(f"refresh:{user_id}", token, ex=60*60*24*7)
         return token
         
-
     @staticmethod
     def decode_token(token: str) -> int:
         try:

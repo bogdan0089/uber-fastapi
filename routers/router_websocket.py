@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from fastapi import WebSocket
-import json
 from utils.connection_manager import ConnectionManager
 from core.redis import redis_client
 import asyncio

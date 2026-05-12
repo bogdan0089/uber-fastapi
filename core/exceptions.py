@@ -103,3 +103,11 @@ class RatingAlreadyExistsError(BaseAppException):
             status_code=status.HTTP_409_CONFLICT,
             detail="Rating for this trip already exists"
         )
+
+class PaymentMethodNotFoundError(BaseAppException):
+    def __init__(self, user_id: int):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Payment not found user: {user_id}"
+        )
+    

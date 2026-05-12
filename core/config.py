@@ -19,7 +19,10 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USER: str
     SMTP_PASSWORD: str
-
+    STRIPE_SECRET_KEY: str
+    STRIPE_PUBLISHABLE_KEY: str
+    STRIPE_WEBHOOK_SECRET: str
+    GROQ_API_KEY: str
 
     @computed_field
     @property

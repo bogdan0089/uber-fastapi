@@ -7,6 +7,7 @@ from routers.router_trip import router_trip
 from routers.router_websocket import router_web_socket
 from routers.router_rating import router_rating
 from routers.router_admin import router_admin
+from routers.router_payment import router_payment
 
 
 app = FastAPI(title="Uber")
