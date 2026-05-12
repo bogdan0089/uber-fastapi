@@ -28,7 +28,7 @@ class Trip(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     passenger_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     driver_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
-    status: Mapped[Status] = mapped_column(default=Status.WAITING)
+    status: Mapped[Status] = mapped_column(SAEnum(Status, values_callable=lambda x: [e.value for e in x]), default=Status.WAITING)
     pickup_address: Mapped[str]
     dropoff_address: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
