@@ -21,7 +21,7 @@ class User(Base):
     avg_rating: Mapped[float] = mapped_column(default=0.0)
     ratings_as_passenger: Mapped[list["Rating"]] = relationship(back_populates="passenger", foreign_keys="[Rating.passenger_id]")
     ratings_as_driver: Mapped[list["Rating"]] = relationship(back_populates="driver", foreign_keys="[Rating.driver_id]")    
-
+    payment_id: Mapped[str | None] = mapped_column(nullable=True)
 
 class Trip(Base):
     __tablename__ = "trips"

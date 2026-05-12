@@ -4,6 +4,7 @@ UserLogin,
 ResponseUser,
 UserUpdate
 )
+from schemas.schemas_payment import PaymentMethod
 from core.redis import redis_client
 from utils.hash import hash_password, verify_password
 from core.exceptions import (
@@ -135,3 +136,13 @@ class UserService:
             if not users:
                 raise UsersNotFoundError()
             return users
+        
+    @staticmethod
+    async def payment_method(current_user: CurrentUser, data: PaymentMethod) -> User:
+        async with UnitOfWork() as uow:
+            user = await uow.user.get_user(current_user.id)
+            if not user:
+                raise UserNotFoundError(current_user.id)
+            return await uow.user.payment_method(user, data)
+        
+            
