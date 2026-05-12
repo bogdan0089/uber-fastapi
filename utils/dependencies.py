@@ -24,24 +24,19 @@ async def get_current_user(token: str = Depends(oauth_scheme)) -> User:
     
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
-
 async def require_pessanger(user: CurrentUser) -> User:
     if user.role != Role.PASSENGER:
         raise PermissinError()
     return user
 
-
 CurrentPessanger = Annotated[User, Depends(require_pessanger)]
-
 
 async def require_driver(user: CurrentUser) -> User:
     if user.role != Role.DRIVER:
         raise PermissinError()
     return user
 
-
 CurrentDriver = Annotated[User, Depends(require_driver)]
-
 
 async def require_admin(user: CurrentUser) -> User:
     if user.role != Role.ADMIN:

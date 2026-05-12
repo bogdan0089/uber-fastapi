@@ -5,12 +5,15 @@ from core.exceptions import (
 TripNotFoundError,
 TripsNotFoundError,
 TripStatusError,
-DriversNotFoundError
+DriversNotFoundError,
+UserNotFoundError,
+PaymentMethodNotFoundError
 )
 from core.redis import redis_client
 from core.enum import Status
 from utils.price_calculator import price_calculate
 from pydantic import TypeAdapter
+from service.stripe_service import StripeService
 
 
 __trips_list_adapter = TypeAdapter(list[ResponseTrip])
@@ -101,6 +104,13 @@ class TripService:
             if new_status == Status.IN_PROGRESS and driver_id:
                 return await uow.trip.accept_trip(trip.id, driver_id)
             updated = await uow.trip.update_status(trip.id, new_status)
+            if new_status == Status.COMPLETED:
+                user = await uow.user.get_user(trip.passenger_id)
+                if not user:
+                    raise UserNotFoundError()
+                if not user.payment_id:
+                    raise PaymentMethodNotFoundError(user.id)
+                await StripeService.charge(trip.price, user.payment_id)
         async for key in redis_client.scan_iter("trip*"):
             await redis_client.unlink(key)
         return updated
