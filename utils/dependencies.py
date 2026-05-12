@@ -6,9 +6,12 @@ from service.auth_service import AuthService
 from core.exceptions import (
 UserNotFoundError,
 PermissinError,
+TooManyRequests
 )
 from typing import Annotated
 from core.enum import Role
+from fastapi import Request
+from core.redis import redis_client
 
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/auth/user_login")
@@ -44,3 +47,14 @@ async def require_admin(user: CurrentUser) -> User:
     return user
 
 CurrentAdmin = Annotated[User, Depends(require_admin)]
+
+async def rate_limit(request: Request):
+    ip = request.client.host
+    key = f"rate_limit:{ip}"
+    count = await redis_client.incr(key)
+    if count == 1:
+        await redis_client.expire(key, 60)
+    if count > 5:
+        raise TooManyRequests()
+
+RateLimit = Annotated[None, Depends(rate_limit)]

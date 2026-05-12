@@ -110,4 +110,10 @@ class PaymentMethodNotFoundError(BaseAppException):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Payment not found user: {user_id}"
         )
-    
+
+class TooManyRequests(BaseAppException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Too many requests. Try again later."
+        )
