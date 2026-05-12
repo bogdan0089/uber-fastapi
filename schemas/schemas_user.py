@@ -11,6 +11,7 @@ class RegisterUser(BaseModel):
     full_name: str
     email: EmailStr
     password: str
+    role: Role = Role.PASSENGER
 
     @field_validator("password")
     @classmethod
