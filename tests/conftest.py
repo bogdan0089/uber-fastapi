@@ -20,6 +20,13 @@ db_module.async_session_maker = TestSessionMaker
 
 
 from app.main import app
+from utils.dependencies import rate_limit
+
+
+async def mock_rate_limit():
+    pass
+
+app.dependency_overrides[rate_limit] = mock_rate_limit
 
 
 @pytest_asyncio.fixture
