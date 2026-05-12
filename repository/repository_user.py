@@ -42,11 +42,12 @@ class RepositoryUser:
         return result.scalars().all()
     
     async def update_user(self, user: User, data: UserUpdate) -> User:
-        for field, value in data.model_dump().items():
+        for field, value in data.model_dump(exclude_none=True).items():
             setattr(user, field, value)
         self.session.add(user)
         await self.session.flush()
         await self.session.refresh(user)
+        return user
 
     async def deactive_user(self, user: User) -> bool:
         user.is_active = False
@@ -88,6 +89,7 @@ class RepositoryUser:
         self.session.add(user)
         await self.session.flush()
         await self.session.refresh(user)
+        return user
         
 
     
