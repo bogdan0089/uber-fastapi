@@ -62,7 +62,7 @@ class DriversNotFoundError(BaseAppException):
             detail=f"Drivers not found."
         )
 
-class PermissinError(BaseAppException):
+class PermissionDeniedError(BaseAppException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,

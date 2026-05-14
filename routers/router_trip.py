@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from service.trip_service import TripService
 from schemas.schemas_trip import TripCreate, ResponseTrip
-from utils.dependencies import CurrentPessanger, CurrentDriver, CurrentUser
+from utils.dependencies import CurrentPassenger, CurrentDriver, CurrentUser
 from models.models import Trip
 from core.enum import Status
 
@@ -10,7 +10,7 @@ router_trip = APIRouter(prefix="/trip", tags=["Trip"])
 
 
 @router_trip.post("/",response_model=ResponseTrip)
-async def create_trip(data: TripCreate, user: CurrentPessanger) -> TripCreate:
+async def create_trip(data: TripCreate, user: CurrentPassenger) -> TripCreate:
     return await TripService.create_trip(data, user.id)
 
 @router_trip.get("/", response_model=list[ResponseTrip])

@@ -21,10 +21,10 @@ __trips_list_adapter = TypeAdapter(list[ResponseTrip])
 class TripService:
 
     @staticmethod
-    async def create_trip(data: TripCreate, pessenger_id: int) -> Trip:
+    async def create_trip(data: TripCreate, passenger_id: int) -> Trip:
         async with UnitOfWork() as uow:
             price = price_calculate(data.pickup_lat, data.pickup_lon, data.dropoff_lat, data.dropoff_lon)
-            trip = await uow.trip.create_trip(data, pessenger_id, price)
+            trip = await uow.trip.create_trip(data, passenger_id, price)
             drivers = await redis_client.georadius("drivers", data.pickup_lon, data.pickup_lat, 5, "km")
             if not drivers:
                 raise DriversNotFoundError()

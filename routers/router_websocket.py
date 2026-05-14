@@ -22,7 +22,7 @@ async def driver(web_socket: WebSocket, driver_id: int):
         await redis_client.zrem(f"drivers", f"driver_id:{driver_id}")
 
 @router_web_socket.websocket("/ws/passenger/{trip_id}")
-async def pessenger(web_socket: WebSocket, trip_id: int):
+async def passenger(web_socket: WebSocket, trip_id: int):
     await manager.connect(web_socket)
     trip = await TripService.get_trip(trip_id)
     driver_id = trip.driver_id

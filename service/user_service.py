@@ -12,7 +12,8 @@ from core.exceptions import (
     UsersNotFoundError,
     UserNotFoundError,
     PasswordError,
-    TokenInvalidError
+    TokenInvalidError,
+    PermissionDeniedError
 )
 import uuid
 from database.unit_of_work import UnitOfWork
@@ -72,7 +73,7 @@ class UserService:
             if not user:
                 raise UserNotFoundError(user_id)
             if current_user.id != user.id and current_user.role != Role.ADMIN:
-                raise PermissionError()
+                raise PermissionDeniedError()
         await redis_client.set(cached_key, ResponseUser.model_validate(user).model_dump_json(), ex=60)
         return user
 
@@ -100,19 +101,19 @@ class UserService:
             if not user:
                 raise UserNotFoundError(user_id)
             if user.id != current_user.id and current_user.role != Role.ADMIN:
-                raise PermissionError()
+                raise PermissionDeniedError()
             user_update = await uow.user.update_user(user, data)
             return user_update
     
     @staticmethod
-    async def deactive_user(user_id: int, current_user: User) -> bool:
+    async def deactivate_user(user_id: int, current_user: User) -> bool:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if not user:
                 raise UserNotFoundError(user_id)
             if user.id != current_user.id and current_user.role != Role.ADMIN:
-                raise PermissionError()
-            deactivated_user = await uow.user.deactive_user(user)
+                raise PermissionDeniedError()
+            deactivated_user = await uow.user.deactivate_user(user)
             return deactivated_user
         
     @staticmethod

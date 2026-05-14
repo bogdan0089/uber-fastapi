@@ -49,7 +49,7 @@ class RepositoryUser:
         await self.session.refresh(user)
         return user
 
-    async def deactive_user(self, user: User) -> bool:
+    async def deactivate_user(self, user: User) -> bool:
         user.is_active = False
         self.session.add(user)
         await self.session.flush()

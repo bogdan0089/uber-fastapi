@@ -5,7 +5,7 @@ from database.unit_of_work import UnitOfWork
 from service.auth_service import AuthService
 from core.exceptions import (
 UserNotFoundError,
-PermissinError,
+PermissionDeniedError,
 )
 from typing import Annotated
 from core.enum import Role
@@ -24,23 +24,23 @@ async def get_current_user(token: str = Depends(oauth_scheme)) -> User:
     
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
-async def require_pessanger(user: CurrentUser) -> User:
+async def require_passenger(user: CurrentUser) -> User:
     if user.role != Role.PASSENGER:
-        raise PermissinError()
+        raise PermissionDeniedError()
     return user
 
-CurrentPessanger = Annotated[User, Depends(require_pessanger)]
+CurrentPassenger = Annotated[User, Depends(require_passenger)]
 
 async def require_driver(user: CurrentUser) -> User:
     if user.role != Role.DRIVER:
-        raise PermissinError()
+        raise PermissionDeniedError()
     return user
 
 CurrentDriver = Annotated[User, Depends(require_driver)]
 
 async def require_admin(user: CurrentUser) -> User:
     if user.role != Role.ADMIN:
-        raise PermissinError()
+        raise PermissionDeniedError()
     return user
 
 CurrentAdmin = Annotated[User, Depends(require_admin)]

@@ -18,4 +18,4 @@ async def update_user(data: UserUpdate, current_user: CurrentUser) -> ResponseUs
 
 @router_user.delete("/me", status_code=204)
 async def deactivated_user(current_user: CurrentUser):
-    return await UserService.deactive_user(current_user.id, current_user)
+    return await UserService.deactivate_user(current_user.id, current_user)
