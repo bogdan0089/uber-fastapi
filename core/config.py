@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     STRIPE_PUBLISHABLE_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     GROQ_API_KEY: str
+    ALLOWED_ORIGINS: str = "http://localhost:3000"
+
 
     @computed_field
     @property
